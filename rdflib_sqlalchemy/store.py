@@ -50,6 +50,7 @@ FULL_TRIPLE_PARTITIONS = [QUOTED_PARTITION, ASSERTED_LITERAL_PARTITION]
 INTERNED_PREFIX = "kb_"
 
 MYSQL_MAX_INDEX_LENGTH = 200
+MSSQLSERVER_MAX_INDEX_LENGTH=450
 
 Any = None
 
@@ -314,6 +315,9 @@ class TermType(types.TypeDecorator):
     """Term typology."""
 
     impl = types.Text
+
+    def __init__(self, **kwargs):
+        self.impl = self.impl(**kwargs)
 
     def process_bind_param(self, value, dialect):
         """Process bound parameters."""
@@ -1239,10 +1243,10 @@ class SQLAlchemy(Store, SQLGenerator):
             Table(
                 "%s_asserted_statements" % self._internedId, self.metadata,
                 Column("id", types.Integer, nullable=False, primary_key=True),
-                Column("subject", TermType, nullable=False),
-                Column("predicate", TermType, nullable=False),
-                Column("object", TermType, nullable=False),
-                Column("context", TermType, nullable=False),
+                Column("subject", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                Column("predicate", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                Column("object", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                Column("context", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
                 Column("termcomb", types.Integer,
                        nullable=False, key="termComb"),
                 Index("%s_A_termComb_index" % self._internedId,
@@ -1254,9 +1258,9 @@ class SQLAlchemy(Store, SQLGenerator):
             "type_statements":
             Table("%s_type_statements" % self._internedId, self.metadata,
                   Column("id", types.Integer, nullable=False, primary_key=True),
-                  Column("member", TermType, nullable=False),
-                  Column("klass", TermType, nullable=False),
-                  Column("context", TermType, nullable=False),
+                  Column("member", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                  Column("klass", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                  Column("context", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
                   Column("termcomb", types.Integer, nullable=False,
                          key="termComb"),
                   Index("%s_T_termComb_index" % self._internedId,
@@ -1268,10 +1272,10 @@ class SQLAlchemy(Store, SQLGenerator):
             Table(
                 "%s_literal_statements" % self._internedId, self.metadata,
                 Column("id", types.Integer, nullable=False, primary_key=True),
-                Column("subject", TermType, nullable=False),
-                Column("predicate", TermType, nullable=False),
-                Column("object", TermType),
-                Column("context", TermType, nullable=False),
+                Column("subject", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                Column("predicate", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                Column("object", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH)),
+                Column("context", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
                 Column("termcomb", types.Integer, nullable=False,
                        key="termComb"),
                 Column("objlanguage", types.String(255),
@@ -1287,10 +1291,10 @@ class SQLAlchemy(Store, SQLGenerator):
             Table(
                 "%s_quoted_statements" % self._internedId, self.metadata,
                 Column("id", types.Integer, nullable=False, primary_key=True),
-                Column("subject", TermType, nullable=False),
-                Column("predicate", TermType, nullable=False),
-                Column("object", TermType),
-                Column("context", TermType, nullable=False),
+                Column("subject", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                Column("predicate", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
+                Column("object", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH)),
+                Column("context", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH), nullable=False),
                 Column("termcomb", types.Integer, nullable=False,
                        key="termComb"),
                 Column("objlanguage", types.String(255),
@@ -1308,7 +1312,7 @@ class SQLAlchemy(Store, SQLGenerator):
                 "%s_namespace_binds" % self._internedId, self.metadata,
                 Column("prefix", types.String(20), unique=True,
                        nullable=False, primary_key=True),
-                Column("uri", types.Text),
+                Column("uri", TermType(length=MSSQLSERVER_MAX_INDEX_LENGTH)),
                 Index("%s_uri_index" % self._internedId, "uri", mysql_length=MYSQL_MAX_INDEX_LENGTH))
         }
         if __version__ > "0.2":
