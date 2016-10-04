@@ -882,7 +882,6 @@ class SQLAlchemy(Store, SQLGenerator):
                 clause = self.buildClause(
                     asserted, subject, predicate, obj, context)
                 selects.append((asserted, clause, ASSERTED_NON_TYPE_PARTITION))
-
         if context is not None:
             quoted = expression.alias(quoted_table, "quoted")
             clause = self.buildClause(quoted, subject, predicate, obj, context)
